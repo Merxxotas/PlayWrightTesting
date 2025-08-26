@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Primer acercamiento a Playwright. 🥳",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Merxxotas/PlayWrightTesting.git"
@@ -17,6 +15,8 @@
   },
   "homepage": "https://github.com/Merxxotas/PlayWrightTesting#readme",
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.3.0",
     "playwright": "^1.55.0"
   }
 }

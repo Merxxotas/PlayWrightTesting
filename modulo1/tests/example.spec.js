@@ -32,3 +32,13 @@ test("Cuarto Test: obtener el link 'Get Started'", async ({ page }) => {
     page.getByRole("heading", { name: "Installation" })
   ).toBeVisible();
 });
+
+test("Quinto Test: Comparar con que el atributo href sea el correcto", async ({
+  page,
+}) => {
+  await page.goto("https://example.com");
+  await expect(page.locator("a")).toHaveAttribute(
+    "href",
+    "https://www.iana.org/domains/example"
+  );
+});

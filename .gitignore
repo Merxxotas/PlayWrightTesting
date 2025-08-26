@@ -2,6 +2,7 @@
 modulo1/node_modules/
 modulo1/.env
 modulo1/tests-examples/
+modulo1/test-results/
 modulo1/e2e/
 modulo1/package-lock.json
 modulo2/.env

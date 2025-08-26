@@ -4,7 +4,7 @@ modulo2/node_modules/
 modulo3/node_modules/
 modulo1/.env
 modulo1/tests-examples/
-modulo1/tests/
+modulo1/playwright-report/
 modulo1/e2e/
 modulo1/playwright.config.js/
 modulo1/package-lock.json

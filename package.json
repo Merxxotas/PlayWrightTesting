@@ -1,0 +1,22 @@
+{
+  "name": "playwrighttesting",
+  "version": "1.0.0",
+  "description": "Repositorio para el curso de PlayWright",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Merxxotas/PlayWrightTesting.git"
+  },
+  "keywords": [],
+  "author": "Brayan Maríin Guirales",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Merxxotas/PlayWrightTesting/issues"
+  },
+  "homepage": "https://github.com/Merxxotas/PlayWrightTesting#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.3.0"
+  }
+}

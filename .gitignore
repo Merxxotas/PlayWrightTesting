@@ -1,0 +1,22 @@
+#Playwright
+.github/
+tests/
+tests-examples/
+playwright.config.ts
+package-lock.json
+
+#Modulos
+modulo1/node_modules/
+modulo2/node_modules/
+modulo3/node_modules/
+modulo1/.env
+modulo1/package-lock.json
+modulo2/.env
+modulo3/.env
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

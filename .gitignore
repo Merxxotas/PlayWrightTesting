@@ -7,6 +7,10 @@ modulo1/e2e/
 modulo1/playwright-report/
 modulo1/package-lock.json
 modulo2/.env
+modulo2/test-results/
+modulo2/e2e/
+modulo2/playwright-report/
+modulo2/package-lock.json
 modulo2/node_modules/
 modulo3/.env
 modulo3/node_modules/

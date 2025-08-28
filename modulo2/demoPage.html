@@ -65,9 +65,67 @@
       <p>Contact us: <a href="mailto:info@example.com">info@example.com</a></p>
     </footer>
 
-    <button id="add">+</button>
-    <span class="display">0</span>
-    <button id="sub">-</button>
+    <div class="counter-container">
+      <h2>Counter</h2>
+      <div class="counter-display">
+        <button id="sub" class="counter-btn">-</button>
+        <span class="display">0</span>
+        <button id="add" class="counter-btn">+</button>
+      </div>
+    </div>
+
+    <style>
+      .counter-container {
+        text-align: center;
+        margin: 30px auto;
+        padding: 20px;
+        max-width: 300px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .counter-container h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      .counter-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+      .counter-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+      }
+      .counter-btn:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+      .counter-btn:active {
+        transform: scale(0.95);
+      }
+      .display {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+        min-width: 60px;
+        text-align: center;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 2px solid #e9ecef;
+      }
+    </style>
 
     <script defer>
       const increaseBtn = document.getElementById("add");

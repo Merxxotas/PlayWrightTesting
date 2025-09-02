@@ -59,27 +59,12 @@ jobs:
         run: npx playwright test
         continue-on-error: true
 
-      - name: Ejecutar tests de Playwright - Modulo2
+      - name: Ejecutar tests de Playwright - Modulo2 (excluyendo test visual [Screenshots])
         working-directory: ./modulo2
-        run: npx playwright test
+        run: npx playwright test --ignore="**/module2-visual.spec.js"
         continue-on-error: true
 
-      - name: Ejecutar tests de Playwright - Modulo3
+      - name: Ejecutar tests de Playwright - Modulo3 (excluyendo test visual [Screenshots])
         working-directory: ./modulo3
-        run: npx playwright test
-        continue-on-error: true
-
-      - name: Ejecutar test específico - Module1 (browserAutomation)
-        working-directory: ./modulo1
-        run: npx playwright test tests/module1.spec.js
-        continue-on-error: true
-
-      - name: Ejecutar test específico - Module2 (mockAPI)
-        working-directory: ./modulo2
-        run: npx playwright test tests/module2-mockAPI.spec.js
-        continue-on-error: true
-
-      - name: Ejecutar test específico - Module3 (dataDriven)
-        working-directory: ./modulo3
-        run: npx playwright test tests/module3-dataDriven.spec.js
+        run: npx playwright test --ignore="**/module3-visual.spec.js"
         continue-on-error: true

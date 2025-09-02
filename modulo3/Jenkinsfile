@@ -12,5 +12,22 @@ pipeline{
                 sh 'node --version'
             }
         }
+
+        stage("Instalar Playwright")
+            steps{
+                sh '''
+                npm i -D @playwright/test
+                npx playwright install
+                npx playwright install-deps
+                '''
+            }
+
+        stage ("Enlistar todos los casos de prueba") {
+            steps {
+                sh '''
+                npx playwright test --list
+                '''
+            }
+        }
     }
 }

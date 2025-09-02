@@ -61,10 +61,10 @@ jobs:
 
       - name: Ejecutar tests de Playwright - Modulo2 (excluyendo test visual [Screenshots])
         working-directory: ./modulo2
-        run: npx playwright test --ignore="**/module2-visual.spec.js"
+        run: npx playwright test --grep-invert "visual"
         continue-on-error: true
 
       - name: Ejecutar tests de Playwright - Modulo3 (excluyendo test visual [Screenshots])
         working-directory: ./modulo3
-        run: npx playwright test --ignore="**/module3-visual.spec.js"
+        run: npx playwright test --grep-invert "visual"
         continue-on-error: true

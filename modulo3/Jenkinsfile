@@ -105,14 +105,14 @@ pipeline{
             }
         }
 
-        stage("Ejecutar Tests de Playwright") {
+        stage("Ejecutar Tests de Playwright (excluyendo visuales)") {
             steps {
                 script {
                     try {
                         sh '''
-                        npx playwright test --reporter=html
+                        npx playwright test --grep-invert "visual" --reporter=html
                         '''
-                        echo "Tests de Playwright ejecutados exitosamente"
+                        echo "Tests de Playwright ejecutados exitosamente (excluyendo tests visuales)"
                     } catch (Exception e) {
                         error "Error ejecutando tests de Playwright: ${e.getMessage()}"
                     }

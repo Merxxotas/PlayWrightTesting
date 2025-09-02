@@ -12,6 +12,7 @@ modulo2/e2e/
 modulo2/playwright-report/
 modulo2/package-lock.json
 modulo2/node_modules/
+modulo2/tests/module2-visual.spec.js-snapshots/
 modulo3/.env
 modulo3/node_modules/
 

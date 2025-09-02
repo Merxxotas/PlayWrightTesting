@@ -9,7 +9,13 @@ pipeline{
     stages{
         stage('Verificar la versión de node instalada') {
             steps {
-                sh 'node --version'
+                script{
+                    try{
+                        sh 'node --version'
+                    } catch (Exception e) {
+                        error "Error verificando la versión de Node.js: ${e.getMessage()}"
+                    }
+                }
             }
         }
 
@@ -31,10 +37,119 @@ pipeline{
 
         stage ("Enlistar todos los casos de prueba") {
             steps {
-                sh '''
-                npx playwright test --list
-                '''
+                script{
+                    try {
+                        sh '''
+                        npx playwright test --list
+                        '''
+                    } catch (Exception e) {
+                        error "Error obteniendo los casos de prueba bajo Playwright: ${e.getMessage()}"
+                    }
+                }
             }
+        }
+
+        stage("Instalar Http-server") {
+            steps {
+                script{
+                    try{
+                        sh 'npm install -g http-server'
+                    } catch (Exception e) {
+                        error "Error instalando Http-server: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+        stage("Iniciando el servidor HTTP en el puerto 5500") {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        nohup http-server -p 5500 > server.log 2>&1 &
+                        echo $! > server.pid
+                        echo "Servidor HTTP iniciado en puerto 5500"
+                        '''
+                    } catch (Exception e) {
+                        error "Error iniciando el servidor HTTP: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+        stage("Esperando por el servidor HTTP para iniciar") {
+            steps {
+                script {
+                    try {
+                        def maxRetries = 50
+                        def retryCount = 0
+                        def serverReady = false
+                        
+                        while (retryCount < maxRetries && !serverReady) {
+                            echo "Intento ${retryCount + 1} de ${maxRetries} - Verificando servidor..."
+                            def response = sh(script: 'curl -s http://127.0.0.1:5500', returnStatus: true) 
+                            if (response == 0) {
+                                serverReady = true
+                                echo "¡Servidor HTTP listo en el puerto 5500!"
+                            } else {
+                                sleep(2) // Esperar 2 segundos entre intentos
+                                retryCount++
+                            }
+                        }
+                        
+                        if (!serverReady) {
+                            error "El servidor HTTP no se inició en el puerto 5500 después de ${maxRetries} intentos."
+                        }
+                    } catch (Exception e) {
+                        error "Error esperando por el servidor HTTP: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage("Ejecutar Tests de Playwright") {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        npx playwright test --reporter=html
+                        '''
+                        echo "Tests de Playwright ejecutados exitosamente"
+                    } catch (Exception e) {
+                        error "Error ejecutando tests de Playwright: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                try {
+                    // Detener el servidor HTTP si existe
+                    sh '''
+                    if [ -f server.pid ]; then
+                        kill $(cat server.pid) || true
+                        rm -f server.pid
+                        echo "Servidor HTTP detenido"
+                    fi
+                    '''
+                } catch (Exception e) {
+                    echo "No se pudo detener el servidor: ${e.getMessage()}"
+                }
+            }
+            
+            // Publicar reportes de Playwright si existen
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: false,
+                keepAll: true,
+                reportDir: 'playwright-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright Test Report'
+            ])
+            
+            // Limpiar archivos temporales
+            cleanWs()
         }
     }
 }

@@ -1,0 +1,16 @@
+pipeline{
+    agent {
+        docker {
+            image 'node:22'
+            args '-u root:root'
+        }
+    }
+
+    stages{
+        stage('Verificar la versión de node instalada') {
+            steps {
+                sh 'node --version'
+            }
+        }
+    }
+}

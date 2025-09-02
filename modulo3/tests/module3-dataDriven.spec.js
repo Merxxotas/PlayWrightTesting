@@ -11,7 +11,7 @@ test.describe("Serie de Test: Pruebas de búsqueda parametrizadas", () => {
     test(`Test: debería mostrar el resultado correcto para la entrada"${input}"`, async ({
       page,
     }) => {
-      await page.goto("http://127.0.0.1:8080/modulo3/dataDriven.html");
+      await page.goto("http://127.0.0.1:5050/modulo3/dataDriven.html");
 
       await page.fill('input[name="search"]', input);
 

@@ -32,7 +32,7 @@ test("Test: Llamadas a APIs", async ({ page }) => {
     }
   });
 
-  await page.goto("http://127.0.0.1:8080/modulo2/apiCall.html");
+  await page.goto("http://127.0.0.1:5050/modulo2/apiCall.html");
   await page.click("#btn");
   const userData = await page.locator("p");
   await expect(userData).toHaveText(" The new user name is Brayan");

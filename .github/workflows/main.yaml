@@ -45,11 +45,11 @@ jobs:
 
       - name: Iniciar servidor HTTP en segundo plano
         run: |
-          nohup http-server -p 8080 &
+          nohup http-server -p 5050 &
 
       - name: Esperar por el server para Iniciar tests de integración
         run: |
-          while ! curl -s http://127.0.0.1:8080; do
+          while ! curl -s http://127.0.0.1:5050; do
             echo "Esperando al servidor"
             sleep 1
           done

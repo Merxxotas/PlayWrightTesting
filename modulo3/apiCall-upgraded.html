@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random User Generator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-top: 20px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 300;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+
+      .btn-container {
+        padding: 30px;
+        text-align: center;
+        background: #f8f9fa;
+      }
+
+      #btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      #btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      #btn:active {
+        transform: translateY(0);
+      }
+
+      .user-card {
+        display: none;
+        padding: 40px;
+        animation: fadeIn 0.6s ease;
+      }
+
+      .user-card.show {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .user-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid #667eea;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .user-name {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .user-title {
+        color: #667eea;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+
+      .user-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .detail-group {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 4px solid #667eea;
+      }
+
+      .detail-label {
+        font-size: 0.9rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .detail-value {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .contact-section {
+        grid-column: 1 / -1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin-top: 10px;
+      }
+
+      .contact-section .detail-label {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .contact-section .detail-value {
+        color: white;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .user-details {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .user-name {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Random User Generator</h1>
+        <p>Discover random people from around the world</p>
+      </div>
+
+      <div class="btn-container">
+        <button id="btn">Generate Random User</button>
+      </div>
+
+      <div class="loading" id="loading" style="display: none">
+        <div class="spinner"></div>
+        <p>Fetching user data...</p>
+      </div>
+
+      <div class="user-card" id="userCard">
+        <div class="user-header">
+          <img id="userImage" src="" alt="User Photo" class="user-image" />
+          <div class="user-name" id="userName"></div>
+          <div class="user-title" id="userTitle"></div>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-group">
+            <div class="detail-label">First Name</div>
+            <div class="detail-value" id="firstName"></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Last Name</div>
+            <div class="detail-value" id="lastName"></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Country</div>
+            <div class="detail-value" id="country"></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">State</div>
+            <div class="detail-value" id="state"></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">City</div>
+            <div class="detail-value" id="city"></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Postal Code</div>
+            <div class="detail-value" id="postcode"></div>
+          </div>
+
+          <div class="detail-group contact-section">
+            <div class="detail-label">Phone Number</div>
+            <div class="detail-value" id="phone"></div>
+          </div>
+
+          <div class="detail-group contact-section">
+            <div class="detail-label">Cell Phone</div>
+            <div class="detail-value" id="cell"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const btn = document.getElementById("btn");
+      const userCard = document.getElementById("userCard");
+      const loading = document.getElementById("loading");
+
+      // Elementos para mostrar los datos
+      const userImage = document.getElementById("userImage");
+      const userName = document.getElementById("userName");
+      const userTitle = document.getElementById("userTitle");
+      const firstName = document.getElementById("firstName");
+      const lastName = document.getElementById("lastName");
+      const country = document.getElementById("country");
+      const state = document.getElementById("state");
+      const city = document.getElementById("city");
+      const postcode = document.getElementById("postcode");
+      const phone = document.getElementById("phone");
+      const cell = document.getElementById("cell");
+
+      btn.addEventListener("click", async () => {
+        // Mostrar loading y ocultar tarjeta anterior
+        loading.style.display = "block";
+        userCard.classList.remove("show");
+
+        try {
+          const response = await fetch("https://randomuser.me/api/");
+          const data = await response.json();
+          const user = data.results[0];
+
+          console.log("User data:", user);
+
+          // Simular un pequeño delay para mostrar el loading
+          setTimeout(() => {
+            // Poblar los datos
+            populateUserData(user);
+
+            // Ocultar loading y mostrar tarjeta
+            loading.style.display = "none";
+            userCard.classList.add("show");
+          }, 500);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          loading.style.display = "none";
+          alert("Error fetching user data. Please try again.");
+        }
+      });
+
+      function populateUserData(user) {
+        // Imagen (medium size)
+        userImage.src = user.picture.medium;
+        userImage.alt = `${user.name.first} ${user.name.last}`;
+
+        // Nombre completo
+        const fullName = `${user.name.first} ${user.name.last}`;
+        userName.textContent = fullName;
+
+        // Título
+        userTitle.textContent = user.name.title;
+
+        // Nombres
+        firstName.textContent = user.name.first;
+        lastName.textContent = user.name.last;
+
+        // Ubicación
+        country.textContent = user.location.country;
+        state.textContent = user.location.state;
+        city.textContent = user.location.city;
+        postcode.textContent = user.location.postcode;
+
+        // Contacto
+        phone.textContent = user.phone;
+        cell.textContent = user.cell;
+      }
+
+      // Generar un usuario al cargar la página
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          btn.click();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

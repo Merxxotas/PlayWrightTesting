@@ -15,6 +15,11 @@ modulo2/node_modules/
 modulo2/tests/module2-visual.spec.js-snapshots/
 modulo3/.env
 modulo3/node_modules/
+modulo3/test-results/
+modulo3/e2e/
+modulo3/playwright-report/
+modulo3/package-lock.json
+modulo3/tests/module3-visual.spec.js-snapshots/
 
 # Playwright
 node_modules/

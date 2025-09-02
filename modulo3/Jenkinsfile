@@ -13,14 +13,21 @@ pipeline{
             }
         }
 
-        stage("Instalar Playwright")
-            steps{
-                sh '''
-                npm i -D @playwright/test
-                npx playwright install
-                npx playwright install-deps
-                '''
+        stage("Instalar Playwright") {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        npm i -D @playwright/test
+                        npx playwright install
+                        npx playwright install-deps
+                        '''
+                    } catch (Exception e) {
+                        error "Error instalando Playwright: ${e.getMessage()}"
+                    }
+                }
             }
+        }
 
         stage ("Enlistar todos los casos de prueba") {
             steps {

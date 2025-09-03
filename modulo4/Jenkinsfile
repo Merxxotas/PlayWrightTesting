@@ -171,31 +171,6 @@ pipeline {
                     fi
                 '''
             }
-            // Publicar los reportes HTML de Playwright de cada módulo
-            publishHTML([
-                allowMissing: true, 
-                alwaysLinkToLastBuild: false, 
-                keepAll: true, 
-                reportDir: 'modulo1/playwright-report', 
-                reportFiles: 'index.html', 
-                reportName: 'Reporte Playwright - Modulo 1'
-            ])
-            publishHTML([
-                allowMissing: true, 
-                alwaysLinkToLastBuild: false, 
-                keepAll: true, 
-                reportDir: 'modulo2/playwright-report', 
-                reportFiles: 'index.html', 
-                reportName: 'Reporte Playwright - Modulo 2'
-            ])
-            publishHTML([
-                allowMissing: true, 
-                alwaysLinkToLastBuild: false, 
-                keepAll: true, 
-                reportDir: 'modulo3/playwright-report', 
-                reportFiles: 'index.html', 
-                reportName: 'Reporte Playwright - Modulo 3'
-            ])
             // Limpiar el espacio de trabajo
             cleanWs()
         }

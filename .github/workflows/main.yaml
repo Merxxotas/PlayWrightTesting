@@ -118,5 +118,5 @@ jobs:
 
       - name: Ejecutar tests de API con Pytest - Modulo4 # Ejecuta las pruebas de la API con pytest
         working-directory: ./modulo4
-        run: pytest
+        run: pytest tests/
         continue-on-error: false

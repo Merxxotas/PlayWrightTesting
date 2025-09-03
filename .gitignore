@@ -23,7 +23,7 @@ modulo3/tests/module3-visual.spec.js-snapshots/
 modulo4/.env
 modulo4/.playwrightPythonVenv/
 modulo4/test-results/
-
+modulo4/tests/__pycache__/
 
 # Playwright
 node_modules/

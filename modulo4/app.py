@@ -10,12 +10,15 @@ resources = {
     3: {"name": "Resource 3", "type": "Type C"}
 }
 
-#Obtener la data
+# Obtener la data
+# @app.route('/', methods=['GET'])
+
+
 @app.route('/resources', methods=['GET'])
 def get_resources():
-    data = request.json
     # Procesar los datos recibidos
     return jsonify({"message": "Datos recibidos", "data": resources}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

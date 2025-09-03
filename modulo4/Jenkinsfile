@@ -1,6 +1,5 @@
 pipeline {
     // 1. Agente de Ejecución
-    // Se usará una imagen de Docker con Node.js. Se instalará Python manualmente.
     agent {
         docker {
             image 'node:22'
@@ -10,7 +9,6 @@ pipeline {
 
     stages {
         // 2. Etapa de Configuración del Entorno
-        // Instala Python, pip y otras herramientas necesarias.
         stage('Setup Environment') {
             steps {
                 script {
@@ -26,49 +24,50 @@ pipeline {
         }
 
         // 3. Etapa de Instalación de Dependencias
-        // Instala las dependencias de todos los módulos en paralelo.
         stage('Install Dependencies') {
             parallel {
-                // Instala dependencias para el Módulo 1
                 stage('Module 1 - JS Deps') {
                     steps {
                         dir('modulo1') {
                             sh 'npm install'
-                            sh 'npx playwright install --with-deps'
                         }
                     }
                 }
-                // Instala dependencias para el Módulo 2
                 stage('Module 2 - JS Deps') {
                     steps {
                         dir('modulo2') {
                             sh 'npm install'
-                            sh 'npx playwright install --with-deps'
                         }
                     }
                 }
-                // Instala dependencias para el Módulo 3
                 stage('Module 3 - JS Deps') {
                     steps {
                         dir('modulo3') {
                             sh 'npm install'
-                            sh 'npx playwright install --with-deps'
                         }
                     }
                 }
-                // Instala dependencias para el Módulo 4
                 stage('Module 4 - Python Deps') {
                     steps {
                         dir('modulo4') {
-                            sh "pip install -r requirements.txt"
+                            // Solución para el error PEP 668
+                            sh "pip install -r requirements.txt --break-system-packages"
                         }
                     }
                 }
             }
         }
 
+        // Instalar Navegadores de Playwright
+        stage('Install Playwright Browsers') {
+            steps {
+                dir('modulo3') {
+                    sh 'npx playwright install --with-deps'
+                }
+            }
+        }
+
         // 4. Etapa para Iniciar Servidores
-        // Levanta el servidor HTTP para las pruebas de JS y la API de Flask para las pruebas de Python.
         stage('Start Servers') {
             parallel {
                 stage('Start HTTP Server') {
@@ -89,13 +88,11 @@ pipeline {
             }
         }
 
-        // 5. Etapa para Esperar que los Servidores esten listos
-        // Se asegura de que ambos servidores estén aceptando peticiones antes de continuar.
+        // 5. Etapa para Esperar que los Servidores estén listos
         stage('Wait for Servers') {
             parallel {
                 stage('Wait for HTTP Server') {
                     steps {
-                        // Espera un máximo de 2 minutos
                         timeout(time: 2, unit: 'MINUTES') {
                             sh 'while ! curl -s http://127.0.0.1:5500; do echo "Waiting for HTTP server..."; sleep 2; done'
                             echo "HTTP Server is ready!"
@@ -104,7 +101,6 @@ pipeline {
                 }
                 stage('Wait for Flask API Server') {
                     steps {
-                        // Espera un máximo de 2 minutos
                         timeout(time: 2, unit: 'MINUTES') {
                             sh 'while ! curl -s http://127.0.0.1:5000/resources; do echo "Waiting for Flask API server..."; sleep 2; done'
                             echo "Flask API Server is ready!"
@@ -115,7 +111,6 @@ pipeline {
         }
 
         // 6. Etapa de Ejecución de Pruebas
-        // Ejecuta todas las suites de pruebas en paralelo.
         stage('Run Tests') {
             parallel {
                 stage('Run Playwright Tests - Module 1') {
@@ -142,7 +137,6 @@ pipeline {
                 stage('Run Pytest API Tests - Module 4') {
                     steps {
                         dir('modulo4') {
-                            // Se usa el nombre de archivo corregido para que pytest lo encuentre
                             sh 'pytest tests/module4-api_tests.py'
                         }
                     }
@@ -152,8 +146,6 @@ pipeline {
     }
 
     // 7. Etapa Posterior a la Ejecución
-    // Siempre se ejecuta, sin importar si las pruebas fallaron o no.
-    // Detiene los servidores, publica los reportes y limpia el espacio de trabajo.
     post {
         always {
             script {

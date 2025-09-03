@@ -1,8 +1,8 @@
 pipeline {
-    // 1. Agente de Ejecución
+    // 1. Agente de Ejecución: Usamos una imagen oficial de Python
     agent {
         docker {
-            image 'node:22'
+            image 'python:3.12-slim'
             args '-u root:root'
         }
     }
@@ -13,7 +13,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'apt-get update && apt-get install -y python3 python3-pip curl'
+                        // El contenedor ya tiene python y pip. Solo instalamos curl para las verificaciones.
+                        sh 'apt-get update && apt-get install -y curl'
                         sh 'python3 --version'
                         sh 'pip --version'
                     } catch (Exception e) {
@@ -23,139 +24,55 @@ pipeline {
             }
         }
 
-        // 3. Etapa de Instalación de Dependencias
-        stage('Install Dependencies') {
-            parallel {
-                stage('Module 1 - JS Deps') {
-                    steps {
-                        dir('modulo1') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Module 2 - JS Deps') {
-                    steps {
-                        dir('modulo2') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Module 3 - JS Deps') {
-                    steps {
-                        dir('modulo3') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Module 4 - Python Deps') {
-                    steps {
-                        dir('modulo4') {
-                            // Solución para el error PEP 668
-                            sh "pip install -r requirements.txt --break-system-packages"
-                        }
-                    }
-                }
-            }
-        }
-
-        // Instalar Navegadores de Playwright
-        stage('Install Playwright Browsers') {
+        // 3. Etapa de Instalación de Dependencias de Python
+        stage('Install Python Dependencies') {
             steps {
-                dir('modulo3') {
-                    sh 'npx playwright install --with-deps'
+                // Nos movemos al directorio del módulo 4 para instalar las dependencias
+                dir('modulo4') {
+                    sh "pip install -r requirements.txt --break-system-packages"
                 }
             }
         }
 
-        // 4. Etapa para Iniciar Servidores
-        stage('Start Servers') {
-            parallel {
-                stage('Start HTTP Server') {
-                    steps {
-                        sh 'npm install -g http-server'
-                        sh 'nohup http-server -p 5500 > http-server.log 2>&1 & echo $! > http-server.pid'
-                        echo "HTTP Server starting..."
-                    }
-                }
-                stage('Start Flask API Server') {
-                    steps {
-                        dir('modulo4') {
-                            sh 'nohup python3 app.py > ../flask-api.log 2>&1 & echo $! > ../flask-api.pid'
-                            echo "Flask API Server starting..."
-                        }
-                    }
+        // 4. Etapa para Iniciar el Servidor API de Flask
+        stage('Start Flask API Server') {
+            steps {
+                dir('modulo4') {
+                    // Iniciamos el servidor en segundo plano y guardamos su PID
+                    sh 'nohup python3 app.py > ../flask-api.log 2>&1 & echo $! > ../flask-api.pid'
+                    echo "Flask API Server starting..."
                 }
             }
         }
 
-        // 5. Etapa para Esperar que los Servidores estén listos
-        stage('Wait for Servers') {
-            parallel {
-                stage('Wait for HTTP Server') {
-                    steps {
-                        timeout(time: 2, unit: 'MINUTES') {
-                            sh 'while ! curl -s http://127.0.0.1:5500; do echo "Waiting for HTTP server..."; sleep 2; done'
-                            echo "HTTP Server is ready!"
-                        }
-                    }
-                }
-                stage('Wait for Flask API Server') {
-                    steps {
-                        timeout(time: 2, unit: 'MINUTES') {
-                            sh 'while ! curl -s http://127.0.0.1:5000/resources; do echo "Waiting for Flask API server..."; sleep 2; done'
-                            echo "Flask API Server is ready!"
-                        }
-                    }
+        // 5. Etapa para Esperar que el Servidor esté listo
+        stage('Wait for Flask API Server') {
+            steps {
+                // Esperamos un máximo de 2 minutos a que el servidor responda
+                timeout(time: 2, unit: 'MINUTES') {
+                    sh 'while ! curl -s http://127.0.0.1:5000/resources; do echo "Waiting for Flask API server..."; sleep 2; done'
+                    echo "Flask API Server is ready!"
                 }
             }
         }
 
-        // 6. Etapa de Ejecución de Pruebas
-        stage('Run Tests') {
-            parallel {
-                stage('Run Playwright Tests - Module 1') {
-                    steps {
-                        dir('modulo1') {
-                            sh 'npx playwright test'
-                        }
-                    }
-                }
-                stage('Run Playwright Tests - Module 2') {
-                    steps {
-                        dir('modulo2') {
-                            sh 'npx playwright test --grep-invert "visual"'
-                        }
-                    }
-                }
-                stage('Run Playwright Tests - Module 3') {
-                    steps {
-                        dir('modulo3') {
-                            sh 'npx playwright test --grep-invert "visual"'
-                        }
-                    }
-                }
-                stage('Run Pytest API Tests - Module 4') {
-                    steps {
-                        dir('modulo4') {
-                            sh 'pytest tests/module4-api_tests.py'
-                        }
-                    }
+        // 6. Etapa de Ejecución de Pruebas de Pytest
+        stage('Run Pytest API Tests') {
+            steps {
+                dir('modulo4') {
+                    // Ejecutamos pytest especificando el directorio de pruebas
+                    sh 'pytest tests/'
                 }
             }
         }
     }
 
-    // 7. Etapa Posterior a la Ejecución
+    // 7. Etapa Posterior a la Ejecución (Limpieza)
     post {
         always {
             script {
-                // Detener ambos servidores
+                // Siempre nos aseguramos de detener el servidor
                 sh '''
-                    if [ -f http-server.pid ]; then
-                        echo "Stopping HTTP Server..."
-                        kill $(cat http-server.pid) || true
-                        rm http-server.pid
-                    fi
                     if [ -f flask-api.pid ]; then
                         echo "Stopping Flask API Server..."
                         kill $(cat flask-api.pid) || true
@@ -163,7 +80,7 @@ pipeline {
                     fi
                 '''
             }
-            // Limpiar el espacio de trabajo
+            // Limpiamos el espacio de trabajo al finalizar
             cleanWs()
         }
     }

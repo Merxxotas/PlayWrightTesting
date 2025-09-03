@@ -60,7 +60,7 @@ pipeline {
                 stage('Module 4 - Python Deps') {
                     steps {
                         dir('modulo4') {
-                            sh "pip install -r requirements.txt" //
+                            sh "pip install -r requirements.txt"
                         }
                     }
                 }
@@ -81,7 +81,7 @@ pipeline {
                 stage('Start Flask API Server') {
                     steps {
                         dir('modulo4') {
-                            sh 'nohup python3 app.py > ../flask-api.log 2>&1 & echo $! > ../flask-api.pid' //
+                            sh 'nohup python3 app.py > ../flask-api.log 2>&1 & echo $! > ../flask-api.pid'
                             echo "Flask API Server starting..."
                         }
                     }
@@ -143,7 +143,7 @@ pipeline {
                     steps {
                         dir('modulo4') {
                             // Se usa el nombre de archivo corregido para que pytest lo encuentre
-                            sh 'pytest tests/module4-api_tests.py' //
+                            sh 'pytest tests/module4-api_tests.py'
                         }
                     }
                 }
@@ -173,13 +173,28 @@ pipeline {
             }
             // Publicar los reportes HTML de Playwright de cada módulo
             publishHTML([
-                allowMissing: true, reportDir: 'modulo1/playwright-report', reportFiles: 'index.html', reportName: 'Reporte Playwright - Modulo 1'
+                allowMissing: true, 
+                alwaysLinkToLastBuild: false, 
+                keepAll: true, 
+                reportDir: 'modulo1/playwright-report', 
+                reportFiles: 'index.html', 
+                reportName: 'Reporte Playwright - Modulo 1'
             ])
             publishHTML([
-                allowMissing: true, reportDir: 'modulo2/playwright-report', reportFiles: 'index.html', reportName: 'Reporte Playwright - Modulo 2'
+                allowMissing: true, 
+                alwaysLinkToLastBuild: false, 
+                keepAll: true, 
+                reportDir: 'modulo2/playwright-report', 
+                reportFiles: 'index.html', 
+                reportName: 'Reporte Playwright - Modulo 2'
             ])
             publishHTML([
-                allowMissing: true, reportDir: 'modulo3/playwright-report', reportFiles: 'index.html', reportName: 'Reporte Playwright - Modulo 3'
+                allowMissing: true, 
+                alwaysLinkToLastBuild: false, 
+                keepAll: true, 
+                reportDir: 'modulo3/playwright-report', 
+                reportFiles: 'index.html', 
+                reportName: 'Reporte Playwright - Modulo 3'
             ])
             // Limpiar el espacio de trabajo
             cleanWs()

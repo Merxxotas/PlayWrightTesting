@@ -1,4 +1,4 @@
-name: Playwright CI Test Pipeline # Nombre descriptivo del pipeline de CI para pruebas con Playwright
+name: Playwright and Python CI Test Pipeline # Nombre descriptivo del pipeline de CI
 
 on:
   push:
@@ -59,28 +59,64 @@ jobs:
       - name: Instalar Http-server via npm # Instala el paquete http-server globalmente para servir archivos estáticos
         run: npm install -g http-server
 
-      - name: Iniciar servidor HTTP en segundo plano # Inicia el servidor http-server en el puerto 5500 usando nohup
+      - name: Configurar Python # Instala Python en el runner
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Puedes especificar la versión que necesites
+
+      - name: Cache de dependencias de Pip # Cachea las dependencias de Python para acelerar instalaciones futuras
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Instalar dependencias de Python # Instala las librerías del requirements.txt
+        working-directory: ./modulo4
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Iniciar servidor HTTP en segundo plano (JS Tests) # Inicia el servidor http-server en el puerto 5500
         run: |
           nohup http-server -p 5500 &
 
-      - name: Esperar por el server para Iniciar tests de integración # Espera hasta que el servidor HTTP esté disponible
+      - name: Iniciar servidor Flask API en segundo plano (Python Tests) # Inicia tu API de Flask en el puerto 5000
+        working-directory: ./modulo4
+        run: |
+          nohup python3 app.py &
+
+      - name: Esperar por el server HTTP (JS Tests) # Espera hasta que el servidor en el puerto 5500 esté disponible
         run: |
           while ! curl -s http://127.0.0.1:5500; do
-            echo "Esperando al servidor"
+            echo "Esperando al servidor HTTP"
             sleep 1
           done
 
-      - name: Ejecutar tests de Playwright - Modulo1 # Ejecuta pruebas de Playwright en módulo 1, continúa si hay errores
+      - name: Esperar por el server Flask API (Python Tests) # Espera hasta que tu API en el puerto 5000 esté disponible
+        run: |
+          while ! curl -s http://127.0.0.1:5000/resources; do
+            echo "Esperando al servidor Flask API"
+            sleep 1
+          done
+
+      - name: Ejecutar tests de Playwright - Modulo1 # Ejecuta pruebas de Playwright en módulo 1
         working-directory: ./modulo1
         run: npx playwright test
         continue-on-error: false
 
-      - name: Ejecutar tests de Playwright - Modulo2 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 2, excluyendo las marcadas como "visual"
+      - name: Ejecutar tests de Playwright - Modulo2 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 2
         working-directory: ./modulo2
         run: npx playwright test --grep-invert "visual"
         continue-on-error: false
 
-      - name: Ejecutar tests de Playwright - Modulo3 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 3, excluyendo las marcadas como "visual"
+      - name: Ejecutar tests de Playwright - Modulo3 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 3
         working-directory: ./modulo3
         run: npx playwright test --grep-invert "visual"
+        continue-on-error: false
+
+      - name: Ejecutar tests de API con Pytest - Modulo4 # Ejecuta las pruebas de la API con pytest
+        working-directory: ./modulo4
+        run: pytest
         continue-on-error: false

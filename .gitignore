@@ -24,6 +24,7 @@ modulo4/.env
 modulo4/.playwrightPythonVenv/
 modulo4/test-results/
 modulo4/tests/__pycache__/
+modulo4/.pytest_cache/
 
 # Playwright
 node_modules/
@@ -31,3 +32,4 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/.pytest_cache/

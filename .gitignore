@@ -20,6 +20,10 @@ modulo3/e2e/
 modulo3/playwright-report/
 modulo3/package-lock.json
 modulo3/tests/module3-visual.spec.js-snapshots/
+modulo4/.env
+modulo4/.playwrightPythonVenv/
+modulo4/test-results/
+
 
 # Playwright
 node_modules/

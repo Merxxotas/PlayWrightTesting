@@ -45,10 +45,7 @@ describe("API Tests", () => {
       .get("/secure-resource")
       .set("Authorization", "Bearer valid_token");
     expect(res.status).to.equal(200);
-    expect(res.body).to.have.property(
-      "message",
-      "Accesso a recurso seguro: ✅"
-    );
+    expect(res.body).to.have.property("message", "Acceso a recurso seguro");
   });
 
   it("Debería no poder acceder al recurso seguro con un token de autenticación inválido", async () => {

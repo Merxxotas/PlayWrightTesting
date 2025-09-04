@@ -1,0 +1,29 @@
+{
+  "name": "modulo5",
+  "version": "1.0.0",
+  "description": "API REST Testing con NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Merxxotas/PlayWrightTesting/tree/apiModule5.git"
+  },
+  "author": "Brayan Marin Guirales",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Merxxotas/PlayWrightTesting/tree/apiModule5/issues"
+  },
+  "homepage": "https://github.com/Merxxotas/PlayWrightTesting/tree/apiModule5#readme",
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
+    "mochawesome": "^7.1.3",
+    "supertest": "^7.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

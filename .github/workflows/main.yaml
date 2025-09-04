@@ -1,122 +1,31 @@
-name: Playwright and Python CI Test Pipeline # Nombre descriptivo del pipeline de CI
+name: Run Tests
 
-on:
-  push:
-    branches:
-      - main # El workflow se ejecuta cuando hay un push a la rama main
+on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-24.04 # El runner usará Ubuntu 24.04
+    runs-on: ubuntu-24-04
 
     steps:
-      - name: Validar código # Clona el repositorio en el runner
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Instalar NodeJS # Instala Node.js versión 22.x en el runner
+      - name: Setup Node JS
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
 
-      - name: Cache node Modules # Cachea la carpeta ~/.npm para acelerar instalaciones de dependencias
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # La clave depende del SO y del hash de package-lock.json
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Instalar dependencias del modulo1 # Instala dependencias npm en el módulo 1
-        working-directory: ./modulo1
+      - name: Instalar dependencias
         run: npm install
 
-      - name: Instalar dependencias del modulo2 # Instala dependencias npm en el módulo 2
-        working-directory: ./modulo2
-        run: npm install
+      - name: Crear una carpeta para los reportes
+        run: mkdir -p reportes
 
-      - name: Instalar dependencias del modulo3 # Instala dependencias npm en el módulo 3
-        working-directory: ./modulo3
-        run: npm install
+      - name: Correr los Tests
+        run: npx mocha --reporter mochawesome --reporter-options reportDir=reportes, reportFilename=reporteAPITest-NodeJS --exit
 
-      - name: Instalar navegadores para Playwright (modulo1) # Descarga navegadores necesarios para Playwright en módulo 1
-        working-directory: ./modulo1
-        run: npx playwright install
-
-      - name: Instalar navegadores para Playwright (modulo2) # Descarga navegadores necesarios para Playwright en módulo 2
-        working-directory: ./modulo2
-        run: npx playwright install
-
-      - name: Instalar navegadores para Playwright (modulo3) # Descarga navegadores necesarios para Playwright en módulo 3
-        working-directory: ./modulo3
-        run: npx playwright install
-
-      - name: Cache Playwright Browsers # Cachea los navegadores instalados por Playwright para futuras ejecuciones
-        uses: actions/cache@v4
+      - name: Subir el reporte de MochaJS
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Instalar Http-server via npm # Instala el paquete http-server globalmente para servir archivos estáticos
-        run: npm install -g http-server
-
-      - name: Configurar Python # Instala Python en el runner
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12" # Puedes especificar la versión que necesites
-
-      - name: Cache de dependencias de Pip # Cachea las dependencias de Python para acelerar instalaciones futuras
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Instalar dependencias de Python # Instala las librerías del requirements.txt
-        working-directory: ./modulo4
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Iniciar servidor HTTP en segundo plano (JS Tests) # Inicia el servidor http-server en el puerto 5500
-        run: |
-          nohup http-server -p 5500 &
-
-      - name: Iniciar servidor Flask API en segundo plano (Python Tests) # Inicia tu API de Flask en el puerto 5000
-        working-directory: ./modulo4
-        run: |
-          nohup python3 app.py &
-
-      - name: Esperar por el server HTTP (JS Tests) # Espera hasta que el servidor en el puerto 5500 esté disponible
-        run: |
-          while ! curl -s http://127.0.0.1:5500; do
-            echo "Esperando al servidor HTTP"
-            sleep 1
-          done
-
-      - name: Esperar por el server Flask API (Python Tests) # Espera hasta que tu API en el puerto 5000 esté disponible
-        run: |
-          while ! curl -s http://127.0.0.1:5000/resources; do
-            echo "Esperando al servidor Flask API"
-            sleep 1
-          done
-
-      - name: Ejecutar tests de Playwright - Modulo1 # Ejecuta pruebas de Playwright en módulo 1
-        working-directory: ./modulo1
-        run: npx playwright test
-        continue-on-error: false
-
-      - name: Ejecutar tests de Playwright - Modulo2 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 2
-        working-directory: ./modulo2
-        run: npx playwright test --grep-invert "visual"
-        continue-on-error: false
-
-      - name: Ejecutar tests de Playwright - Modulo3 (excluyendo test visual [Screenshots]) # Ejecuta pruebas en módulo 3
-        working-directory: ./modulo3
-        run: npx playwright test --grep-invert "visual"
-        continue-on-error: false
-
-      - name: Ejecutar tests de API con Pytest - Modulo4 # Ejecuta las pruebas de la API con pytest
-        working-directory: ./modulo4
-        run: pytest tests/
-        continue-on-error: false
+          name: Reporte de MochaJS
+          path: reportes

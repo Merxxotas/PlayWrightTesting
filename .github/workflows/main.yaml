@@ -6,7 +6,7 @@ on:
       - apiModule5
 jobs:
   test:
-    runs-on: ubuntu-24-04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code

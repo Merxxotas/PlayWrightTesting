@@ -24,7 +24,7 @@ jobs:
         run: mkdir -p reportes
 
       - name: Correr los Tests
-        run: npx mocha --reporter mochawesome --reporter-options reportDir=reportes, reportFilename=reporteAPITest-NodeJS --exit
+        run: npx mocha --reporter mochawesome --reporter-options reportDir=reportes,reportFilename=reporteAPITest-NodeJS --exit
 
       - name: Subir el reporte de MochaJS
         uses: actions/upload-artifact@v4

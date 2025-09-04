@@ -25,6 +25,18 @@ modulo4/.playwrightPythonVenv/
 modulo4/test-results/
 modulo4/tests/__pycache__/
 modulo4/.pytest_cache/
+modulo6/modulo6.1-create-react-app/node_modules/
+modulo6/modulo6.1-create-react-app/.env
+modulo6/modulo6.1-create-react-app/test-results/
+modulo6/modulo6.1-create-react-app/package-lock.json
+modulo6/modulo6.1-create-react-app/src/App.test.js
+modulo6/modulo6.1-create-react-app/src/setupTests.js
+modulo6/modulo6.2-react-redux/node_modules/
+modulo6/modulo6.2-react-redux/.env
+modulo6/modulo6.2-react-redux/test-results/
+modulo6/modulo6.2-react-redux/package-lock.json
+modulo6/modulo6.2-react-redux/src/App.test.js
+
 
 # Playwright
 node_modules/

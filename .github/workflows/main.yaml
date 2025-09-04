@@ -1,7 +1,9 @@
 name: Run Tests
 
-on: [push]
-
+on:
+  push:
+    branches:
+      - apiModule5
 jobs:
   test:
     runs-on: ubuntu-24-04

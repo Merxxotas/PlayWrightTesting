@@ -1,0 +1,6 @@
+version: 2
+snapshot:
+  width: [375, 768, 1280]
+  # Establece la altura mínima (en píxeles) para la visualización de las capturas de Percy.
+  # Esto asegura que las capturas tengan suficiente espacio vertical para mostrar correctamente el contenido.
+  min-height: 1024

@@ -1,16 +1,21 @@
+// Declaración de pipeline para Jenkins
 pipeline{
+    // Definimos el agente como un contenedor Docker con Node.js
     agent {
         docker {
-            image 'node:22'
-            args '-u root:root'
+            image 'node:22' // Imagen base de Node.js versión 22
+            args '-u root:root' // Ejecutar como usuario root
         }
     }
 
+    // Definimos las etapas del pipeline
     stages{
+        // Etapa 1: Verificar la versión de Node.js instalada
         stage('Verificar la versión de node instalada') {
             steps {
                 script{
                     try{
+                        // Mostramos la versión de Node.js
                         sh 'node --version'
                     } catch (Exception e) {
                         error "Error verificando la versión de Node.js: ${e.getMessage()}"
@@ -19,10 +24,12 @@ pipeline{
             }
         }
 
+        // Etapa 2: Instalar Playwright y sus dependencias
         stage("Instalar Playwright") {
             steps {
                 script {
                     try {
+                        // Instalamos Playwright y sus dependencias
                         sh '''
                         npm i -D @playwright/test
                         npx playwright install
@@ -35,10 +42,12 @@ pipeline{
             }
         }
 
+        // Etapa 3: Enlistar todos los casos de prueba disponibles en Playwright
         stage ("Enlistar todos los casos de prueba") {
             steps {
                 script{
                     try {
+                        // Listamos los tests detectados por Playwright
                         sh '''
                         npx playwright test --list
                         '''
@@ -49,10 +58,12 @@ pipeline{
             }
         }
 
+        // Etapa 4: Instalar el servidor HTTP globalmente
         stage("Instalar Http-server") {
             steps {
                 script{
                     try{
+                        // Instalamos el paquete http-server globalmente
                         sh 'npm install -g http-server'
                     } catch (Exception e) {
                         error "Error instalando Http-server: ${e.getMessage()}"
@@ -60,10 +71,13 @@ pipeline{
                 }
             }
         }
+
+        // Etapa 5: Iniciar el servidor HTTP en el puerto 5500
         stage("Iniciando el servidor HTTP en el puerto 5500") {
             steps {
                 script {
                     try {
+                        // Iniciamos el servidor en segundo plano y guardamos el PID
                         sh '''
                         nohup http-server -p 5500 > server.log 2>&1 &
                         echo $! > server.pid
@@ -75,14 +89,16 @@ pipeline{
                 }
             }
         }
+
+        // Etapa 6: Esperar a que el servidor HTTP esté listo antes de continuar
         stage("Esperando por el servidor HTTP para iniciar") {
             steps {
                 script {
                     try {
-                        def maxRetries = 50
-                        def retryCount = 0
-                        def serverReady = false
-                        
+                        def maxRetries = 50 // Número máximo de intentos
+                        def retryCount = 0 // Contador de intentos
+                        def serverReady = false // Bandera de estado
+                        // Intentamos conectarnos al servidor hasta que esté listo o se agoten los intentos
                         while (retryCount < maxRetries && !serverReady) {
                             echo "Intento ${retryCount + 1} de ${maxRetries} - Verificando servidor..."
                             def response = sh(script: 'curl -s http://127.0.0.1:5500', returnStatus: true) 
@@ -94,7 +110,7 @@ pipeline{
                                 retryCount++
                             }
                         }
-                        
+                        // Si no se logra iniciar el servidor, lanzamos error
                         if (!serverReady) {
                             error "El servidor HTTP no se inició en el puerto 5500 después de ${maxRetries} intentos."
                         }
@@ -105,10 +121,12 @@ pipeline{
             }
         }
 
+        // Etapa 7: Ejecutar los tests de Playwright, excluyendo los visuales
         stage("Ejecutar Tests de Playwright (excluyendo visuales)") {
             steps {
                 script {
                     try {
+                        // Ejecutamos los tests, excluyendo los que contienen "visual" en el nombre
                         sh '''
                         npx playwright test --grep-invert "visual" --reporter=html
                         '''
@@ -121,6 +139,7 @@ pipeline{
         }
     }
     
+    // Bloque post: acciones que se ejecutan siempre al finalizar el pipeline
     post {
         always {
             script {
@@ -137,7 +156,6 @@ pipeline{
                     echo "No se pudo detener el servidor: ${e.getMessage()}"
                 }
             }
-            
             // Publicar reportes de Playwright si existen
             publishHTML([
                 allowMissing: true,
@@ -147,8 +165,7 @@ pipeline{
                 reportFiles: 'index.html',
                 reportName: 'Playwright Test Report'
             ])
-            
-            // Limpiar archivos temporales
+            // Limpiar archivos temporales y workspace
             cleanWs()
         }
     }
